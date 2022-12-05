@@ -24,7 +24,6 @@
 
 (defn foo [x] (list (map + [1 2 3])))
 
-
 (let [a    :b]
   (str "foo"     "bar" "baz"
        "a"    a))
@@ -32,7 +31,6 @@
 (defn score [row] (get scores (str/replace row " " "")))
 (def results (map score split-input))
 (reduce + results)
-
 
 (def needed {"AY" "AX" ; tie
              "AX" "AZ" ; lose 
