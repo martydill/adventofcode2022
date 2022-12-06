@@ -33,3 +33,20 @@
 
 (def filtered-results (filter (fn [x] x) all-results))
 (count filtered-results)
+
+; Part 2
+
+(defn is-in-2 [val range]
+  (and (>= val (first range))
+       (<= val (last range))))
+
+(defn pair-is-in-2 [pair range]
+  (or (is-in-2 (first pair) range) (is-in (last pair) range)))
+
+(def all-results-2
+  (map
+   (fn [row] (or (pair-is-in-2 (first row) (last row)) (pair-is-in-2 (last row) (first row))))
+   rows-of-ints))
+
+(def filtered-results-2 (filter (fn [x] x) all-results-2))
+(count filtered-results-2)
