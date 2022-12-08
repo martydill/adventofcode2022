@@ -34,7 +34,25 @@
 
 (def tree (parse input "/" {}))
 
+(def MAX 100000)
 
+(defn dir-name [path]
+  (subs path 0 (str/last-index-of path "/")))
+
+(defn get-directories [state]
+  (map dir-name (keys state)))
+
+(def all-dirs (get-directories tree))
+
+(defn children [dir state]
+  (filter (fn [x] (str/starts-with? dir x)) (keys state)))
+
+(children "/q" tree)
+
+(defn directory-size [dir state]
+  0)
+
+(map all-dirs directory-size)
 
 
 
