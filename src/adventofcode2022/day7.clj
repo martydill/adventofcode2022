@@ -9,14 +9,13 @@
 ; returns next input and next state
 (defn run-cd [cmd input current-state]
   [input (assoc current-state 0 cmd)])
-{:foo-bar }
 
 
 ; takes cmd, input, and current state
 ; returns next input and next state
 ;; (defn run-ls [cmd input current-state]
 ;;   (let [files-in-dir atom []]
-    
+
 
 ;;     (if (str/starts-with? input "$")
 ;;       [(rest input) current-state]
@@ -47,27 +46,35 @@
     (if (= new-path "") "/"
         new-path)))
 
-  (defn down-one-level [path cmd]
-    (str/replace (str path "/" (last (str/split cmd #" "))) "//" "/"))
+(defn down-one-level [path cmd]
+  (str/replace (str path "/" (last (str/split cmd #" "))) "//" "/"))
 
-  (down-one-level "/a", "$ cd asdf")
-  (down-one-level "/", "$ cd asdf")
+(down-one-level "/a", "$ cd asdf")
+(down-one-level "/", "$ cd asdf")
 
 (up-one-level "/asdf/abcd/eeee")
 (up-one-level "/asdf)")
+
+(defn add-entry [path cmd current-state]
+(let [parts (str/split cmd #" ")
+      filename (first parts)
+      filesize (last parts)
+      fullpath (str path "/" filename)]
+  (assoc current-state fullpath filesize))
 
 (defn parse [input current-path current-state]
   (let [next-command (first input)]
     (if (empty? next-command)
       current-state
       (cond
-        (= next-command "$ ls") (run-ls "ls" input current-state) ; skip
-        (str/starts-with? next-command "$ cd ..") (parse (rest input) nil nil) ; change dir
-        (str/starts-with? next-command "$ cd ") (parse (rest input) nil nil)
-        (str/starts-with? next-command "dir ") (parse nil nil nil)))))
+        (= next-command "$ ls") (parse (rest input) current-path current-state) ; skip
+        (str/starts-with? next-command "$ cd ..") (parse (rest input) (up-one-level current-path) current-state) ; change dir up
+        (str/starts-with? next-command "$ cd ") (parse (rest input) (down-one-level current-path next-command) current-state) ; chagne dir down
+        (str/starts-with? next-command "dir ") (parse (rest input) current-path current-state)
+        :else (parse (rest input) current-path (add-entry path cmd current-state))))))) ; ignore?
 
-(parse input start-state)
-    
+(parse input "/" start-state)
+
 
 (str/join (butlast ["1" "2" "3"]))
 
