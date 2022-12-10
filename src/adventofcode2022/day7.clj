@@ -1,8 +1,6 @@
 (ns adventofcode2022.day7
   (:require [clojure.string :as str]))
 
-(def input (str/split (slurp "day7.input") #"\n"))
-
 (defn up-one-level [path]
   (let [new-path (str/join "/" (butlast (str/split path #"/")))]
     (if (= new-path "") "/"
@@ -32,6 +30,7 @@
         (str/starts-with? next-command "dir ") (parse (rest input) current-path current-state)
         :else (parse (rest input) current-path (add-entry current-path next-command current-state))))))
 
+(def input (str/split (slurp "day7.input") #"\n"))
 (def tree (parse input "/" {}))
 
 (def MAX 100000)
@@ -39,21 +38,39 @@
 (defn dir-name [path]
   (subs path 0 (str/last-index-of path "/")))
 
+; need to get all dir names
+; /foo/bar/baz/aaaa.q = /foo, /foo/bar, /foo/bar/baz
+(defn dir-names [path]
+  (if (= path "")
+    [path]
+    (let [dn (dir-name path)]
+      (conj (dir-names dn) dn))))
+
 (defn get-directories [state]
-  (map dir-name (keys state)))
+  (set (flatten (map dir-names (keys state)))))
 
 (def all-dirs (get-directories tree))
 
 (defn children [dir state]
-  (filter (fn [x] (str/starts-with? dir x)) (keys state)))
+  (filter (fn [x] (str/starts-with? x (str dir "/"))) (keys state)))
 
-(children "/q" tree)
+(defn file-size [file state] (Integer/parseInt (get state file)))
 
 (defn directory-size [dir state]
-  0)
+  (let [child-dirs (children dir state)]
+    (reduce + (map (fn [x] (file-size x state)) child-dirs))))
 
-(map all-dirs directory-size)
+(defn all-directory-sizes [state all-dirs]
+  (filter (fn [size] (<= size MAX)) (map (fn [dir] (directory-size dir state)) all-dirs)))
 
+(reduce + (all-directory-sizes tree all-dirs))
 
+; part 2
+(def total-disk-usage (reduce + (map (fn [x] (file-size x tree)) (keys tree))))
+(def require-to-free (- 30000000 (- 70000000 total-disk-usage)))
+(defn all-directory-sizes-2 [state all-dirs]
+  (map (fn [dir] (directory-size dir state)) all-dirs))
 
+(def sorted-sizes (sort (all-directory-sizes-2 tree all-dirs)))
+(first (filter (fn [x] (< require-to-free x)) sorted-sizes))
 
