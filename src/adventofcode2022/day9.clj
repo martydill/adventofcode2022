@@ -25,9 +25,9 @@
         ; head 2 squares left, move left
       (and (= hy ty) (= hx (- tx 2))) [[hx hy] [(dec tx) ty]]
         ; head 2 squares up, move up
-      (and (= hx tx) (= hy (- ty 2))) [[hx hy] [tx (inc ty)]]
+      (and (= hx tx) (= hy (+ ty 2))) [[hx hy] [tx (inc ty)]]
         ; head 2 squares down, move down
-      (and (= hx tx) (= hy (+ 2 ty))) [[hx hy] [tx (dec ty)]]
+      (and (= hx tx) (= hy (- ty 2))) [[hx hy] [tx (dec ty)]]
 
       ; one square away, dont' need to move
       (and (<= (abs (- hx tx)) 1) (<= (abs (- hy ty)) 1)) state
