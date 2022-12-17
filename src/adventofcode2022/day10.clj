@@ -6,8 +6,11 @@
 (def initial-state {:x 1 :ticks 0})
 
 (defn add-state [state]
-;;   (println state)
-  (reset! history (conj @history state)))
+  (let [x-pos (rem (dec (:ticks state)) 40)
+        char (if (<= (abs (- x-pos (:x state))) 1) \# \ )]
+    (print char)
+    (if (= (rem (:ticks state) 40) 0) (println) nil)
+    (reset! history (conj @history state))))
 
 (defn noop [state]
   (add-state (assoc state :ticks (inc (:ticks state))))
@@ -28,14 +31,13 @@
     (= instr "addx") (addx state val)))
 
 (defn run [input state]
-;;   (println state (first input))
-;;   (add-state state)
   (if (empty? input) state
       (let [[instr val] (parts (first input))
             next-state (run-instr instr (Integer/parseInt val) state)]
         (recur (rest input) next-state))))
-(reset! history [])
-(run input initial-state)
+(defn go []
+  (reset! history [])
+  (run input initial-state))
 
 (defn signal [history ticks]
   (let [z (nth history (dec ticks))
@@ -47,3 +49,4 @@
 (def ticks-to-do [20 60 100 140 180 220])
 
 (reduce + (map (fn [x] (signal @history x)) ticks-to-do))
+(go)
